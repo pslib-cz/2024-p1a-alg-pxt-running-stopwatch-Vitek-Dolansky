@@ -1,35 +1,35 @@
-
 radio.setGroup(73)
 
+enum State { Ready, Running, Finnish }
+let akce = State.Ready
 Sensors.SetLightLevel()
-input.onButtonPressed(Button.A, function() {
-    Sensors.SetLightLevel()
+
+Sensors.OnLightDrop(function () {
+    if (akce === State.Ready) {
+        radio.sendNumber(1) // konec = 2, start = 1
+        akce = State.Running
+    }
+
 })
 
-let start: boolean = false
+//radio.onReceivedNumber(function(receivedNumber: number) {
+// whaleysans.showNumber(input.runningTime())
+//})
 
-Sensors.OnLightDrop(function() {
-    if (start === false) {
-        radio.sendValue ("konec", 2) // konec = 2, zrušeno = 0
+
+radio.onReceivedValue(function (name: string, value: number) {
+    music.playTone(440, 500)
+
+    if (name === "endTime" && akce === State.Running) {
+        basic.showNumber(value)
+        music.play(music.tonePlayable(Note.C, music.beat(BeatFraction.Whole)), music.PlaybackMode.UntilDone)
+        akce = State.Finnish
+    }
+
+    if (akce === State.Finnish) {
+        akce = State.Ready
     }
 })
-
-radio.onReceivedValue
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
